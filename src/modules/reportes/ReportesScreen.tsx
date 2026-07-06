@@ -81,7 +81,7 @@ export function ReportesScreen() {
               <div>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{o.clientName}</div>
                 <div style={{ fontSize: 12, color: "var(--tuwa-gray-700)", marginTop: 2 }}>
-                  {formatDate(o.date)} · Orden #{o.id}
+                  {formatDate(o.date)} · Orden {o.orderNumber}
                 </div>
               </div>
               <div style={{ textAlign: "right", fontSize: 12, fontWeight: 700 }}>
@@ -94,7 +94,7 @@ export function ReportesScreen() {
       </div>
 
       {detail && (
-        <Sheet title={`Orden #${detail.id}`} onClose={() => setDetail(null)}>
+        <Sheet title={`Orden ${detail.orderNumber}`} onClose={() => setDetail(null)}>
           <p style={{ fontSize: 13, color: "var(--tuwa-gray-700)", marginTop: 0 }}>
             {detail.clientName} · {formatDate(detail.date)}
           </p>

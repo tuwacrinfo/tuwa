@@ -6,7 +6,7 @@ import { downloadBlob, openEmail, openWhatsApp, shareOrDownloadPdf } from "../li
 import { formatCRC, formatUSD } from "../lib/format";
 
 function summaryText(order: Order): string {
-  const lines = [`Orden de Compra #${order.id} - ${order.clientName}`];
+  const lines = [`Orden de Compra ${order.orderNumber} - ${order.clientName}`];
   if (order.totalCRC > 0) lines.push(`Total ₡: ${formatCRC(order.totalCRC)}`);
   if (order.totalUSD > 0) lines.push(`Total $: ${formatUSD(order.totalUSD)}`);
   lines.push("Adjunto PDF con el detalle de la orden. - TUWA CR PRO");
@@ -54,7 +54,7 @@ export function ShareOrderSheet({ order, onClose }: { order: Order; onClose: () 
     try {
       const blob = await getBlob();
       downloadBlob(blob, orderFileName(order));
-      openEmail(`Orden de Compra #${order.id} - TUWA CR PRO`, summaryText(order));
+      openEmail(`Orden de Compra ${order.orderNumber} - TUWA CR PRO`, summaryText(order));
       setHint("Se descargó el PDF. Adjuntalo en el correo que se abrió.");
     } finally {
       setBusy(null);
@@ -74,7 +74,7 @@ export function ShareOrderSheet({ order, onClose }: { order: Order; onClose: () 
   return (
     <Sheet title="Orden generada" onClose={onClose}>
       <p style={{ fontSize: 13, color: "var(--tuwa-gray-700)", marginTop: 0 }}>
-        La orden #{order.id} para <strong>{order.clientName}</strong> se guardó correctamente.
+        La orden {order.orderNumber} para <strong>{order.clientName}</strong> se guardó correctamente.
         Elegí cómo compartir el PDF.
       </p>
 

@@ -37,6 +37,7 @@ export interface OrderItem {
 
 export interface Order {
   id?: number;
+  orderNumber: string;
   clientId: number;
   clientName: string;
   clientAddress: string;

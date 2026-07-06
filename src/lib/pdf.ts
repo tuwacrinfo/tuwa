@@ -62,7 +62,7 @@ export async function buildOrderPdf(order: Order): Promise<Blob> {
   doc.setFontSize(10);
   doc.setFont(PDF_FONT, "normal");
   doc.setTextColor(74, 74, 74);
-  doc.text(`No. de orden: ${order.id ?? "-"}`, pageWidth - marginX, 108, { align: "right" });
+  doc.text(`No. de orden: ${order.orderNumber}`, pageWidth - marginX, 108, { align: "right" });
   doc.text(`Fecha: ${formatDate(order.date)}`, pageWidth - marginX, 122, { align: "right" });
 
   let y = 145;
@@ -130,5 +130,5 @@ export async function buildOrderPdf(order: Order): Promise<Blob> {
 
 export function orderFileName(order: Order): string {
   const safeClient = order.clientName.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-  return `orden-${order.id ?? "nueva"}-${safeClient}.pdf`;
+  return `orden-${order.orderNumber}-${safeClient}.pdf`;
 }

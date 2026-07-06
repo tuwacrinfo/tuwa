@@ -11,6 +11,7 @@ import { AddedLinesList } from "./AddedLinesList";
 import { ClienteForm } from "../clientes/ClienteForm";
 import { formatCRC, formatUSD } from "../../lib/format";
 import { getPriceCategoryInfo } from "../../lib/priceCategories";
+import { getNextOrderNumber } from "../../lib/orderNumber";
 
 export function OrdenesScreen() {
   const clients = useLiveQuery(() => db.clients.toArray(), []);
@@ -93,7 +94,9 @@ export function OrdenesScreen() {
 
     setSaving(true);
     try {
+      const existingOrders = await db.orders.toArray();
       const newOrder: Omit<Order, "id"> = {
+        orderNumber: getNextOrderNumber(existingOrders),
         clientId: client.id!,
         clientName: client.name,
         clientAddress: client.address,
