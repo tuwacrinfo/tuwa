@@ -3,6 +3,7 @@ import autoTable from "jspdf-autotable";
 import type { Order } from "../types";
 import { formatCRC, formatUSD, formatDate } from "./format";
 import { PDF_FONT_BOLD_BASE64, PDF_FONT_REGULAR_BASE64 } from "./pdfFonts";
+import { IVA_RATE } from "./tax";
 
 const PDF_FONT = "TuwaSans";
 
@@ -76,6 +77,8 @@ export async function buildOrderPdf(order: Order): Promise<Blob> {
   doc.setTextColor(40, 40, 40);
   doc.text(`Nombre: ${order.clientName}`, marginX, y);
   y += 14;
+  doc.text(`Cédula: ${order.clientIdNumber}`, marginX, y);
+  y += 14;
   doc.text(`Dirección: ${order.clientAddress}`, marginX, y);
   y += 14;
   doc.text(`Contacto: ${order.clientContact}`, marginX, y);
@@ -84,36 +87,49 @@ export async function buildOrderPdf(order: Order): Promise<Blob> {
   autoTable(doc, {
     startY: y,
     margin: { left: marginX, right: marginX },
-    head: [["Código", "Descripción", "Tarifa", "Cant.", "Precio unit.", "Subtotal"]],
+    head: [["Código", "Descripción", "Cant.", "Precio unit.", "Subtotal"]],
     body: order.items.map((item) => {
       const subtotal = item.quantity * item.unitPrice;
       const unitLabel = item.currency === "USD" ? formatUSD(item.unitPrice) : formatCRC(item.unitPrice);
       const subtotalLabel = item.currency === "USD" ? formatUSD(subtotal) : formatCRC(subtotal);
-      return [item.code, item.description, item.priceLabel, String(item.quantity), unitLabel, subtotalLabel];
+      return [item.code, item.description, String(item.quantity), unitLabel, subtotalLabel];
     }),
     styles: { font: PDF_FONT, fontSize: 9, cellPadding: 6 },
     headStyles: { font: PDF_FONT, fontStyle: "bold", fillColor: [10, 10, 10], textColor: [255, 255, 255] },
     alternateRowStyles: { fillColor: [242, 242, 242] },
     columnStyles: {
+      2: { halign: "right" },
       3: { halign: "right" },
       4: { halign: "right" },
-      5: { halign: "right" },
     },
   });
 
   const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
-  doc.setFont(PDF_FONT, "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setTextColor(10, 10, 10);
 
   let totalsY = finalY;
-  if (order.totalCRC > 0) {
-    doc.text(`Total ₡: ${formatCRC(order.totalCRC)}`, pageWidth - marginX, totalsY, { align: "right" });
+  const ivaPercent = IVA_RATE * 100;
+
+  function writeTotalsBlock(subtotal: number, iva: number, total: number, symbol: string, format: (n: number) => string) {
+    doc.setFont(PDF_FONT, "normal");
+    doc.text(`Subtotal ${symbol}: ${format(subtotal)}`, pageWidth - marginX, totalsY, { align: "right" });
+    totalsY += 14;
+    doc.text(`IVA (${ivaPercent}%) ${symbol}: ${format(iva)}`, pageWidth - marginX, totalsY, { align: "right" });
     totalsY += 16;
+    doc.setFont(PDF_FONT, "bold");
+    doc.setFontSize(11);
+    doc.text(`Total ${symbol}: ${format(total)}`, pageWidth - marginX, totalsY, { align: "right" });
+    doc.setFontSize(10);
+    totalsY += 20;
   }
-  if (order.totalUSD > 0) {
+
+  if (order.subtotalCRC > 0) {
+    writeTotalsBlock(order.subtotalCRC, order.ivaCRC, order.totalCRC, "₡", formatCRC);
+  }
+  if (order.subtotalUSD > 0) {
     doc.setTextColor(232, 121, 42);
-    doc.text(`Total $: ${formatUSD(order.totalUSD)}`, pageWidth - marginX, totalsY, { align: "right" });
+    writeTotalsBlock(order.subtotalUSD, order.ivaUSD, order.totalUSD, "$", formatUSD);
   }
 
   doc.setFontSize(8);

@@ -12,6 +12,7 @@ import { ClienteForm } from "../clientes/ClienteForm";
 import { formatCRC, formatUSD } from "../../lib/format";
 import { getPriceCategoryInfo } from "../../lib/priceCategories";
 import { getNextOrderNumber } from "../../lib/orderNumber";
+import { calcIva, IVA_RATE } from "../../lib/tax";
 
 export function OrdenesScreen() {
   const clients = useLiveQuery(() => db.clients.toArray(), []);
@@ -38,6 +39,7 @@ export function OrdenesScreen() {
 
   async function handleNewClientSave(data: {
     name: string;
+    idNumber: string;
     address: string;
     contact: string;
     priceCategory: PriceCategory;
@@ -48,7 +50,7 @@ export function OrdenesScreen() {
     setShowNewClient(false);
   }
 
-  const { totalCRC, totalUSD } = useMemo(() => {
+  const { subtotalCRC, subtotalUSD, ivaCRC, ivaUSD, totalCRC, totalUSD } = useMemo(() => {
     let crc = 0;
     let usd = 0;
     for (const item of items) {
@@ -56,7 +58,16 @@ export function OrdenesScreen() {
       if (item.currency === "USD") usd += subtotal;
       else crc += subtotal;
     }
-    return { totalCRC: crc, totalUSD: usd };
+    const iva_crc = calcIva(crc);
+    const iva_usd = calcIva(usd);
+    return {
+      subtotalCRC: crc,
+      subtotalUSD: usd,
+      ivaCRC: iva_crc,
+      ivaUSD: iva_usd,
+      totalCRC: crc + iva_crc,
+      totalUSD: usd + iva_usd,
+    };
   }, [items]);
 
   function resetForm() {
@@ -99,11 +110,16 @@ export function OrdenesScreen() {
         orderNumber: getNextOrderNumber(existingOrders),
         clientId: client.id!,
         clientName: client.name,
+        clientIdNumber: client.idNumber,
         clientAddress: client.address,
         clientContact: client.contact,
         priceCategory,
         date: new Date().toISOString(),
         items,
+        subtotalCRC,
+        subtotalUSD,
+        ivaCRC,
+        ivaUSD,
         totalCRC,
         totalUSD,
         createdAt: Date.now(),
@@ -213,17 +229,41 @@ export function OrdenesScreen() {
               </div>
 
               <div className="card">
-                {totalCRC > 0 && (
-                  <div className="total-bar">
-                    <span>Total ₡</span>
-                    <span className="amount">{formatCRC(totalCRC)}</span>
-                  </div>
+                {subtotalCRC > 0 && (
+                  <>
+                    <div className="list-row">
+                      <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal ₡</span>
+                      <span>{formatCRC(subtotalCRC)}</span>
+                    </div>
+                    <div className="list-row">
+                      <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>
+                        IVA ({IVA_RATE * 100}%) ₡
+                      </span>
+                      <span>{formatCRC(ivaCRC)}</span>
+                    </div>
+                    <div className="total-bar">
+                      <span>Total ₡</span>
+                      <span className="amount">{formatCRC(totalCRC)}</span>
+                    </div>
+                  </>
                 )}
-                {totalUSD > 0 && (
-                  <div className="total-bar">
-                    <span>Total $</span>
-                    <span className="amount">{formatUSD(totalUSD)}</span>
-                  </div>
+                {subtotalUSD > 0 && (
+                  <>
+                    <div className="list-row">
+                      <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal $</span>
+                      <span>{formatUSD(subtotalUSD)}</span>
+                    </div>
+                    <div className="list-row">
+                      <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>
+                        IVA ({IVA_RATE * 100}%) $
+                      </span>
+                      <span>{formatUSD(ivaUSD)}</span>
+                    </div>
+                    <div className="total-bar">
+                      <span>Total $</span>
+                      <span className="amount">{formatUSD(totalUSD)}</span>
+                    </div>
+                  </>
                 )}
               </div>
 

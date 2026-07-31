@@ -6,6 +6,7 @@ import { EmptyState } from "../../components/EmptyState";
 import { Sheet } from "../../components/Sheet";
 import { ShareOrderSheet } from "../../components/ShareOrderSheet";
 import { formatCRC, formatUSD, formatDate } from "../../lib/format";
+import { IVA_RATE } from "../../lib/tax";
 
 export function ReportesScreen() {
   const orders = useLiveQuery(() => db.orders.orderBy("createdAt").reverse().toArray(), []);
@@ -118,17 +119,37 @@ export function ReportesScreen() {
             </div>
           ))}
           <div className="divider" />
-          {detail.totalCRC > 0 && (
-            <div className="total-bar">
-              <span>Total ₡</span>
-              <span className="amount">{formatCRC(detail.totalCRC)}</span>
-            </div>
+          {detail.subtotalCRC > 0 && (
+            <>
+              <div className="list-row">
+                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal ₡</span>
+                <span>{formatCRC(detail.subtotalCRC)}</span>
+              </div>
+              <div className="list-row">
+                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>IVA ({IVA_RATE * 100}%) ₡</span>
+                <span>{formatCRC(detail.ivaCRC)}</span>
+              </div>
+              <div className="total-bar">
+                <span>Total ₡</span>
+                <span className="amount">{formatCRC(detail.totalCRC)}</span>
+              </div>
+            </>
           )}
-          {detail.totalUSD > 0 && (
-            <div className="total-bar">
-              <span>Total $</span>
-              <span className="amount">{formatUSD(detail.totalUSD)}</span>
-            </div>
+          {detail.subtotalUSD > 0 && (
+            <>
+              <div className="list-row">
+                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal $</span>
+                <span>{formatUSD(detail.subtotalUSD)}</span>
+              </div>
+              <div className="list-row">
+                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>IVA ({IVA_RATE * 100}%) $</span>
+                <span>{formatUSD(detail.ivaUSD)}</span>
+              </div>
+              <div className="total-bar">
+                <span>Total $</span>
+                <span className="amount">{formatUSD(detail.totalUSD)}</span>
+              </div>
+            </>
           )}
           <button
             className="btn btn-primary"

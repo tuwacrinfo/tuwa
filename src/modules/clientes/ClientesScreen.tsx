@@ -27,6 +27,7 @@ export function ClientesScreen() {
 
   async function handleSave(data: {
     name: string;
+    idNumber: string;
     address: string;
     contact: string;
     priceCategory: PriceCategory;
@@ -61,6 +62,9 @@ export function ClientesScreen() {
           {selected.name}
         </h2>
         <div className="card">
+          <div style={{ fontSize: 13, color: "var(--tuwa-gray-700)", marginBottom: 4 }}>
+            🪪 {selected.idNumber}
+          </div>
           <div style={{ fontSize: 13, color: "var(--tuwa-gray-700)", marginBottom: 4 }}>
             📍 {selected.address}
           </div>

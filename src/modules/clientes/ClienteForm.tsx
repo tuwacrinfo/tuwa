@@ -11,6 +11,7 @@ export function ClienteForm({
   initial?: Client;
   onSave: (data: {
     name: string;
+    idNumber: string;
     address: string;
     contact: string;
     priceCategory: PriceCategory;
@@ -18,6 +19,7 @@ export function ClienteForm({
   onClose: () => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
+  const [idNumber, setIdNumber] = useState(initial?.idNumber ?? "");
   const [address, setAddress] = useState(initial?.address ?? "");
   const [contact, setContact] = useState(initial?.contact ?? "");
   const [priceCategory, setPriceCategory] = useState<PriceCategory>(
@@ -28,13 +30,14 @@ export function ClienteForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const n = name.trim();
+    const idn = idNumber.trim();
     const a = address.trim();
     const c = contact.trim();
-    if (!n || !a || !c) {
-      setError("Completá nombre, dirección y contacto.");
+    if (!n || !idn || !a || !c) {
+      setError("Completá nombre, cédula, dirección y contacto.");
       return;
     }
-    onSave({ name: n, address: a, contact: c, priceCategory });
+    onSave({ name: n, idNumber: idn, address: a, contact: c, priceCategory });
   }
 
   return (
@@ -48,6 +51,15 @@ export function ClienteForm({
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre del cliente"
             autoFocus
+          />
+        </div>
+        <div className="field">
+          <label>Cédula</label>
+          <input
+            type="text"
+            value={idNumber}
+            onChange={(e) => setIdNumber(e.target.value)}
+            placeholder="Cédula física o jurídica"
           />
         </div>
         <div className="field">

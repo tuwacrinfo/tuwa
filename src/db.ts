@@ -52,6 +52,33 @@ class TuwaDatabase extends Dexie {
       orders: "++id, clientId, createdAt",
     });
 
+    // Clients now capture a cédula, and orders show a Subtotal/IVA/Total
+    // breakdown instead of a single tax-free total.
+    this.version(4)
+      .stores({
+        products: "++id, &code, description",
+        clients: "++id, name",
+        orders: "++id, clientId, createdAt",
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table("clients")
+          .toCollection()
+          .modify((c: Client) => {
+            c.idNumber = c.idNumber ?? "";
+          });
+        await tx
+          .table("orders")
+          .toCollection()
+          .modify((o: Order & { totalCRC: number; totalUSD: number }) => {
+            o.clientIdNumber = o.clientIdNumber ?? "";
+            o.subtotalCRC = o.totalCRC ?? 0;
+            o.subtotalUSD = o.totalUSD ?? 0;
+            o.ivaCRC = 0;
+            o.ivaUSD = 0;
+          });
+      });
+
     this.on("populate", () => {
       this.products.bulkAdd(SEED_PRODUCTS.map((p) => ({ ...p, createdAt: Date.now() })));
     });

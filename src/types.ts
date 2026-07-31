@@ -18,6 +18,7 @@ export interface Product {
 export interface Client {
   id?: number;
   name: string;
+  idNumber: string;
   address: string;
   contact: string;
   priceCategory: PriceCategory;
@@ -40,11 +41,16 @@ export interface Order {
   orderNumber: string;
   clientId: number;
   clientName: string;
+  clientIdNumber: string;
   clientAddress: string;
   clientContact: string;
   priceCategory: PriceCategory;
   date: string;
   items: OrderItem[];
+  subtotalCRC: number;
+  subtotalUSD: number;
+  ivaCRC: number;
+  ivaUSD: number;
   totalCRC: number;
   totalUSD: number;
   createdAt: number;
