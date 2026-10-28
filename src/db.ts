@@ -79,6 +79,23 @@ class TuwaDatabase extends Dexie {
           });
       });
 
+    // Orders record whether IVA was added to their total. Existing orders
+    // are treated as "included" only if they actually carry an IVA amount.
+    this.version(5)
+      .stores({
+        products: "++id, &code, description",
+        clients: "++id, name",
+        orders: "++id, clientId, createdAt",
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table("orders")
+          .toCollection()
+          .modify((o: Order) => {
+            o.includeIva = (o.ivaCRC ?? 0) > 0 || (o.ivaUSD ?? 0) > 0;
+          });
+      });
+
     this.on("populate", () => {
       this.products.bulkAdd(SEED_PRODUCTS.map((p) => ({ ...p, createdAt: Date.now() })));
     });

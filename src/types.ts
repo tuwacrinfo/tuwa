@@ -47,6 +47,7 @@ export interface Order {
   priceCategory: PriceCategory;
   date: string;
   items: OrderItem[];
+  includeIva: boolean;
   subtotalCRC: number;
   subtotalUSD: number;
   ivaCRC: number;

@@ -113,15 +113,24 @@ export async function buildOrderPdf(order: Order): Promise<Blob> {
 
   function writeTotalsBlock(subtotal: number, iva: number, total: number, symbol: string, format: (n: number) => string) {
     doc.setFont(PDF_FONT, "normal");
-    doc.text(`Subtotal ${symbol}: ${format(subtotal)}`, pageWidth - marginX, totalsY, { align: "right" });
-    totalsY += 14;
-    doc.text(`IVA (${ivaPercent}%) ${symbol}: ${format(iva)}`, pageWidth - marginX, totalsY, { align: "right" });
-    totalsY += 16;
+    if (order.includeIva) {
+      doc.text(`Subtotal ${symbol}: ${format(subtotal)}`, pageWidth - marginX, totalsY, { align: "right" });
+      totalsY += 14;
+      doc.text(`IVA (${ivaPercent}%) ${symbol}: ${format(iva)}`, pageWidth - marginX, totalsY, { align: "right" });
+      totalsY += 16;
+    }
     doc.setFont(PDF_FONT, "bold");
     doc.setFontSize(11);
     doc.text(`Total ${symbol}: ${format(total)}`, pageWidth - marginX, totalsY, { align: "right" });
+    totalsY += 14;
+    if (!order.includeIva) {
+      doc.setFont(PDF_FONT, "normal");
+      doc.setFontSize(9);
+      doc.text("IVA no incluido", pageWidth - marginX, totalsY, { align: "right" });
+      totalsY += 6;
+    }
     doc.setFontSize(10);
-    totalsY += 20;
+    totalsY += 14;
   }
 
   if (order.subtotalCRC > 0) {

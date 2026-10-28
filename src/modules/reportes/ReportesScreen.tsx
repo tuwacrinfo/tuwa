@@ -121,14 +121,18 @@ export function ReportesScreen() {
           <div className="divider" />
           {detail.subtotalCRC > 0 && (
             <>
-              <div className="list-row">
-                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal ₡</span>
-                <span>{formatCRC(detail.subtotalCRC)}</span>
-              </div>
-              <div className="list-row">
-                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>IVA ({IVA_RATE * 100}%) ₡</span>
-                <span>{formatCRC(detail.ivaCRC)}</span>
-              </div>
+              {detail.includeIva && (
+                <>
+                  <div className="list-row">
+                    <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal ₡</span>
+                    <span>{formatCRC(detail.subtotalCRC)}</span>
+                  </div>
+                  <div className="list-row">
+                    <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>IVA ({IVA_RATE * 100}%) ₡</span>
+                    <span>{formatCRC(detail.ivaCRC)}</span>
+                  </div>
+                </>
+              )}
               <div className="total-bar">
                 <span>Total ₡</span>
                 <span className="amount">{formatCRC(detail.totalCRC)}</span>
@@ -137,19 +141,28 @@ export function ReportesScreen() {
           )}
           {detail.subtotalUSD > 0 && (
             <>
-              <div className="list-row">
-                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal $</span>
-                <span>{formatUSD(detail.subtotalUSD)}</span>
-              </div>
-              <div className="list-row">
-                <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>IVA ({IVA_RATE * 100}%) $</span>
-                <span>{formatUSD(detail.ivaUSD)}</span>
-              </div>
+              {detail.includeIva && (
+                <>
+                  <div className="list-row">
+                    <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>Subtotal $</span>
+                    <span>{formatUSD(detail.subtotalUSD)}</span>
+                  </div>
+                  <div className="list-row">
+                    <span style={{ fontSize: 13, color: "var(--tuwa-gray-700)" }}>IVA ({IVA_RATE * 100}%) $</span>
+                    <span>{formatUSD(detail.ivaUSD)}</span>
+                  </div>
+                </>
+              )}
               <div className="total-bar">
                 <span>Total $</span>
                 <span className="amount">{formatUSD(detail.totalUSD)}</span>
               </div>
             </>
+          )}
+          {!detail.includeIva && (
+            <p style={{ fontSize: 11, color: "var(--tuwa-gray-500)", margin: "4px 0 0", textAlign: "right" }}>
+              IVA no incluido
+            </p>
           )}
           <button
             className="btn btn-primary"
